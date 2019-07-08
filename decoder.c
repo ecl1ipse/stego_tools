@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	int fd = open(argv[2], O_RDONLY);
+	int fd = open(argv[1], O_RDONLY);
 	if (fd < 0) {
 		printf("Error opening file\n");
 		exit(0);
@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
 		} else {
 			char temp = buf[0] & LSB;
 			temp = temp<<itr;
+			printf("%d,", (unsigned int) temp);
 			c = c | temp;
 			itr--;
 		}
