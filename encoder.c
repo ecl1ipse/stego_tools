@@ -7,17 +7,16 @@
 #define LSB 0b00000001
 #define LSB0_ENCODE 0b11111110
 
-void lsb_encode(int fd, char e);
+void lsb_encode(int fd, uint8_t ch);
 
-void lsb_encode(int fd, char e) {
+void lsb_encode(int fd, uint8_t ch) {
 	char buf[1];
 	read(fd, buf, 1);
 	lseek(fd, -1, SEEK_CUR);
-	if ((int) e != 0) {
-		//Make LSB 1
+	if (ch == 1) {
+		//make the LSB 1
 		buf[0] = buf[0] | LSB;
 	} else {
-		//Make LSB 0
 		buf[0] = buf[0] & LSB0_ENCODE;
 	}
 	write(fd, buf, 1);
@@ -34,15 +33,18 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	//using chars because they have a size of 1
-	char buf[1];
-	char temp;
+	//using uint8_t because they have a size of 1
 	for (int i = 0; i < strlen(argv[1]); i++) {
-		char c = 0b10000000;
+		uint8_t itr = 0b10000000;
 		for (int j = 0; j < 8; j++) {
-			temp = argv[1][i] & c;
-			lsb_encode(fd, temp);
-			c = c>>1;
+			uint8_t ch = itr & argv[1][i];
+			if (ch > 0) {
+				ch = 1;
+			} else {
+				ch = 0;
+			}
+			lsb_encode(fd, ch);
+			itr = itr >> 1;
 		}
 	}
 	close(fd);

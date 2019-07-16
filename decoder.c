@@ -17,6 +17,7 @@ int main(int argc, char **argv) {
 		printf("Error opening file\n");
 		exit(0);
 	}
+
 	char buf[1];
 	int itr = 7;
 	char c = 0b00000000;
@@ -31,7 +32,6 @@ int main(int argc, char **argv) {
 		} else {
 			char temp = buf[0] & LSB;
 			temp = temp<<itr;
-			printf("%d,", (unsigned int) temp);
 			c = c | temp;
 			itr--;
 		}
