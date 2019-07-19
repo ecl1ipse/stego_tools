@@ -32,7 +32,8 @@ int main(int argc, char **argv) {
 		printf("Error opening file\n");
 		exit(0);
 	}
-
+	char temp[500];
+	read(fd, temp, 160);
 	//using uint8_t because they have a size of 1
 	for (int i = 0; i < strlen(argv[1]); i++) {
 		uint8_t itr = 0b10000000;
