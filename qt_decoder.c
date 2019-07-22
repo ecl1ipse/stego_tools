@@ -38,36 +38,52 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-
-	printf("Which bit do you want to decode in\n");
-	int bit_num = 0;
-	scanf("%d", &bit_num);
 	int decode_pattern = 0;
-	if (bit_num >= 1 && bit_num <= 8) {
-		if (bit_num == 1) {
-			decode_pattern = 0b00000001;
-		} else if (bit_num == 2) {
-			decode_pattern = 0b00000010;
-		} else if (bit_num == 3) {
-			decode_pattern = 0b00000100;
-		} else if (bit_num == 4) {
-			decode_pattern = 0b00001000;
-		} else if (bit_num == 5) {
-			decode_pattern = 0b00010000;
-		} else if (bit_num == 6) {
-			decode_pattern = 0b00100000;
-		} else if (bit_num == 7) {
-			decode_pattern = 0b01000000;
-		} else if (bit_num == 8) {
-			decode_pattern = 0b10000000;
-		}
+	int bit_num = 0;
+	int bpb = 0;
+	int itr = 7;
+	printf("How many bits per byte do you want? 1,2,4,8?\n");
+	scanf("%d", &bpb);
+	if (bpb == 1) {
+		printf("Which bit do you want to decode in\n");
+		scanf("%d", &bit_num);
+		if (bit_num >= 1 && bit_num <= 8) {
+			if (bit_num == 1) {
+				decode_pattern = 0b00000001;
+			} else if (bit_num == 2) {
+				decode_pattern = 0b00000010;
+			} else if (bit_num == 3) {
+				decode_pattern = 0b00000100;
+			} else if (bit_num == 4) {
+				decode_pattern = 0b00001000;
+			} else if (bit_num == 5) {
+				decode_pattern = 0b00010000;
+			} else if (bit_num == 6) {
+				decode_pattern = 0b00100000;
+			} else if (bit_num == 7) {
+				decode_pattern = 0b01000000;
+			} else if (bit_num == 8) {
+				decode_pattern = 0b10000000;
+			}
+		} else {
+			printf("Invalid bit number, must be between 1 and 8\n");
+			exit(1);
+		} 
+	} else if (bpb == 2) {
+		itr = 6;
+		decode_pattern = 0b00000011;
+	} else if (bpb == 4) {
+		itr = 4;
+		decode_pattern = 0b00001111;
+	} else if (bpb == 8) {
+		//itr is not important for 8 bpb
+		itr = 0;
 	} else {
-		printf("Invalid bit number, must be between 1 and 8\n");
+		printf("invalid bits per byte. It must be either 1,2,4 or 8\n");
 		exit(1);
 	}
 
 	int count = 64;
-	int itr = 7;
 	char c = 0b00000000;
 	char r_buf[1];
 	int counter = 0;
@@ -76,20 +92,50 @@ int main(int argc, char **argv) {
 			count = 0;
 			continue;
 		} else {
-			if (itr == 0) {
-				//Should have gotten a character
-				char temp = r_buf[0] & decode_pattern;
-				temp = temp>>(bit_num - 1);
-				c = c | temp;
-				printf("%c", c);
-				c = 0b00000000;
-				itr = 7;
-			} else {
-				char temp = r_buf[0] & decode_pattern;
-				temp = temp>>(bit_num - 1);
-				temp = temp<<itr;
-				c = c | temp;
-				itr--;
+			if (bpb == 1) {
+				if (itr == 0) {
+					//Should have gotten a character
+					char temp = r_buf[0] & decode_pattern;
+					temp = temp>>(bit_num - 1);
+					c = c | temp;
+					printf("%c", c);
+					c = 0b00000000;
+					itr = 7;
+				} else {
+					char temp = r_buf[0] & decode_pattern;
+					temp = temp>>(bit_num - 1);
+					temp = temp<<itr;
+					c = c | temp;
+					itr--;
+				}
+			} else if (bpb == 8) {
+				printf("%c", r_buf[0]);
+			} else if (bpb == 4) {
+				if (itr == 0) {
+					char temp = r_buf[0] & decode_pattern;
+					c = c | temp;
+					printf("%c", c);
+					c = 0b00000000;
+					itr = 4;
+				} else {
+					char temp = r_buf[0] & decode_pattern;
+					temp = temp<<itr;
+					itr -= 4;
+					c = c | temp;
+				}
+			} else if (bpb == 2) {
+				if (itr == 0) {
+					char temp = r_buf[0] & decode_pattern;
+					c = c | temp;
+					printf("%c", c);
+					c = 0b00000000;
+					itr = 6;
+				} else {
+					char temp = r_buf[0] & decode_pattern;
+					temp = temp<<itr;
+					itr -= 2;
+					c = c | temp;
+				}
 			}
 			count++;
 		}
