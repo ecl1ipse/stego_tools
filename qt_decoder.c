@@ -38,32 +38,61 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-	int count = 0;
+
+	printf("Which bit do you want to decode in\n");
+	int bit_num = 0;
+	scanf("%d", &bit_num);
+	int decode_pattern = 0;
+	if (bit_num >= 1 && bit_num <= 8) {
+		if (bit_num == 1) {
+			decode_pattern = 0b00000001;
+		} else if (bit_num == 2) {
+			decode_pattern = 0b00000010;
+		} else if (bit_num == 3) {
+			decode_pattern = 0b00000100;
+		} else if (bit_num == 4) {
+			decode_pattern = 0b00001000;
+		} else if (bit_num == 5) {
+			decode_pattern = 0b00010000;
+		} else if (bit_num == 6) {
+			decode_pattern = 0b00100000;
+		} else if (bit_num == 7) {
+			decode_pattern = 0b01000000;
+		} else if (bit_num == 8) {
+			decode_pattern = 0b10000000;
+		}
+	} else {
+		printf("Invalid bit number, must be between 1 and 8\n");
+		exit(1);
+	}
+
+	int count = 64;
 	int itr = 7;
 	char c = 0b00000000;
 	char r_buf[1];
 	int counter = 0;
 	while (read(fd, r_buf, 1)) {
 		if (count == 64) {
-			read(fd, r_buf, 1);
 			count = 0;
+			continue;
 		} else {
 			if (itr == 0) {
 				//Should have gotten a character
-				char temp = r_buf[0] & LSB;
+				char temp = r_buf[0] & decode_pattern;
+				temp = temp>>(bit_num - 1);
 				c = c | temp;
 				printf("%c", c);
 				c = 0b00000000;
 				itr = 7;
 			} else {
-				char temp = r_buf[0] & LSB;
+				char temp = r_buf[0] & decode_pattern;
+				temp = temp>>(bit_num - 1);
 				temp = temp<<itr;
 				c = c | temp;
 				itr--;
-				count++;
 			}
+			count++;
 		}
-
 		counter++;
 		if (counter >= qt_size) {
 			break;
