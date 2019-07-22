@@ -82,7 +82,6 @@ int main(int argc, char **argv) {
 		printf("invalid bits per byte. It must be either 1,2,4 or 8\n");
 		exit(1);
 	}
-
 	int count = 64;
 	char c = 0b00000000;
 	char r_buf[1];

@@ -7,7 +7,7 @@
 void lsb_encode(int fd, uint8_t ch, uint8_t encode_pattern);
 void bit2_encode(int fd, uint8_t ch);
 void bit4_encode(int fd, uint8_t ch);
-void bit8_encode(int fd, uint8_t ch);
+void bit8_encode(int fd, char ch);
 
 void lsb_encode(int fd, uint8_t ch, uint8_t encode_pattern) {
 	char buf[1];
@@ -40,11 +40,12 @@ void bit4_encode(int fd, uint8_t ch) {
 	write(fd, buf, 1);
 }
 
-void bit8_encode(int fd, uint8_t ch) {
+void bit8_encode(int fd, char ch) {
 	char buf[1];
 	int temp = read(fd, buf, 1);
 	lseek(fd, -1, SEEK_CUR);
-	buf[0] = (char) ch;
+	buf[0] = buf[0] & 0b00000000;
+	buf[0] = buf[0] | ch;
 	write(fd, buf, 1);
 }
 
@@ -88,12 +89,17 @@ int main(int argc, char **argv) {
 	int ipc = 0;
 	uint8_t itr_val = 0;
 	printf("How many bits per byte do you want encoded? 1,2,4 or 8?\n");
-	printf("The more bits per byte the more image corruption but more characters can be encoded\n");
+	printf("1 = %d characters\n", encodable_characters);
+	printf("2 = %d characters\n", encodable_characters * 2);
+	printf("4 = %d characters\n", encodable_characters * 4);
+	printf("8 (currently not working) = %d characters\n", encodable_characters * 8);
+	printf("Your message is %lu characters long\n", strlen(argv[1]));
 	int bpb = 0;
 	scanf("%d", &bpb);
 
 	if (bpb == 1) {
 		printf("Which bit do you want to encode in, 1 is the most secure and 8 is the least secure\n");
+		printf("8 is not currently functional\n");
 		scanf("%d", &bit_num);
 		if (bit_num >= 1 && bit_num <= 8) {
 			if (bit_num == 1) {
@@ -112,6 +118,7 @@ int main(int argc, char **argv) {
 				encode_pattern = 0b01000000;
 			} else if (bit_num == 8) {
 				encode_pattern = 0b10000000;
+				printf("Currently not working\n");
 			}
 			ipc = 8;
 			itr_val = 0b10000000;
@@ -119,23 +126,27 @@ int main(int argc, char **argv) {
 	} else if (bpb == 2) {
 		ipc = 4;
 		itr_val = 0b11000000;
+		encodable_characters = encodable_characters * 2;
 	} else if (bpb == 4) {
 		ipc = 2;
 		itr_val = 0b11110000;
+		encodable_characters = encodable_characters * 4;
 	} else if (bpb == 8) {
 		ipc = 1;
 		itr_val = 0b11111111;
+		encodable_characters = encodable_characters * 8;
+		printf("Currently not working\n");
 	} else {
 		printf("invalid bits per byte. It must be either 1,2,4 or 8\n");
 		exit(1);
 	}
 
-	encodable_characters = 1000;
 	int count = 64;
 	if (strlen(argv[1]) > encodable_characters) {
 		printf("Too many characters to securely encode\n");
 		exit(1);
 	}
+
 	for (int i = 0; i < strlen(argv[1]); i++) {
 		uint8_t itr = itr_val;
 		for (int j = 0; j < ipc; j++) {
@@ -173,12 +184,13 @@ int main(int argc, char **argv) {
 					itr = itr >> 4;
 					bit4_encode(fd, ch);
 				} else if (ipc == 1) {
-					bit8_encode(fd, ch);
+					bit8_encode(fd, argv[1][i]);
 				}
 				count++;
 			}
 		}
 	}
 	close(fd);
+	printf("Message encoded\n");
 
 }
