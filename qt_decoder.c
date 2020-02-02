@@ -16,9 +16,9 @@ int main(int argc, char **argv) {
 		printf("Error opening file\n");
 		exit(1);
 	}
-	uint16_t qt_size = 0;
+	int qt_size = 0;
 	int nqt = 0; //number of quantisation tables
-	uint8_t buf[1];
+	unsigned char buf[1];
 	while (read(fd, buf, 1)) {
 		if (buf[0] == 0xFF) {
 			int brk = read(fd, buf, 1);
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 				char size[2];
 				read(fd, size, 2);
 				qt_size = size[0] << 8;
-				qt_size = qt_size | (uint8_t) size[1];
+				qt_size = qt_size | (unsigned char) size[1];
 				qt_size = qt_size - 2;
 				nqt = qt_size/65;
 				break;

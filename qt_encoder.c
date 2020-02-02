@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+typedef unsigned char uint8_t;
+
 void lsb_encode(int fd, uint8_t ch, uint8_t encode_pattern);
 void bit2_encode(int fd, uint8_t ch);
 void bit4_encode(int fd, uint8_t ch);
@@ -59,11 +61,13 @@ int main(int argc, char **argv) {
 		printf("Error opening file\n");
 		exit(1);
 	}
-	uint16_t qt_size = 0;
+	__CHAR32_TYPE__ qt_size = 0;
 	int nqt = 0; //number of quantisation tables
 	uint8_t buf[1];
 	while (read(fd, buf, 1)) {
+        printf("%d ", buf[0]);
 		if (buf[0] == 0xFF) {
+            printf("Hai\n");
 			int brk = read(fd, buf, 1);
 			if (brk == -1) {
 				printf("error\n");
