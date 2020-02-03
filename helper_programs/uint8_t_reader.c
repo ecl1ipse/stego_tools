@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 		printf("Error opening file\n");
 		exit(0);
 	}
-	uint8_t buf[1];
+	char buf[1];
 	while (read(fd, buf, 1)) {
 		printf("%d ", buf[0]);
 	}

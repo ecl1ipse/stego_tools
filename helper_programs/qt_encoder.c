@@ -53,7 +53,7 @@ void bit8_encode(int fd, char ch) {
 
 int main(int argc, char **argv) {
 	if (argc != 3) {
-		printf("Usage: message, file_name\n");
+		printf("Usage: message file_name\n");
 		exit(1);
 	}
 	int fd = open(argv[2], O_RDWR);
@@ -67,7 +67,6 @@ int main(int argc, char **argv) {
 	while (read(fd, buf, 1)) {
         printf("%d ", buf[0]);
 		if (buf[0] == 0xFF) {
-            printf("Hai\n");
 			int brk = read(fd, buf, 1);
 			if (brk == -1) {
 				printf("error\n");
