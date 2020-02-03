@@ -139,28 +139,9 @@ void encode(int fd) {
 }
 
 void decode(int fd) {
-	int qt_size = 0;
-	int nqt = 0; //number of quantisation tables
-	unsigned char buf[1];
-	while (read(fd, buf, 1)) {
-		if (buf[0] == 0xFF) {
-			int brk = read(fd, buf, 1);
-			if (brk == -1) {
-				printf("error\n");
-				exit(1);
-			}
-			if (buf[0] == 0xDB) {
-				//found the quantisation table 
-				char size[2];
-				read(fd, size, 2);
-				qt_size = size[0] << 8;
-				qt_size = qt_size | (unsigned char) size[1];
-				qt_size = qt_size - 2;
-				nqt = qt_size/65;
-				break;
-			}
-		}
-	}
+	int qt_size = calc_encodable_characters(fd);
+	qt_size /= 8;
+	qt_size *= 65;
 	int decode_pattern = 0;
 	int bpb = 0;
 	int itr = 7;
@@ -182,6 +163,7 @@ void decode(int fd) {
 		printf("invalid bits per byte. It must be either 1,2,4 or 8\n");
 		exit(1);
 	}
+	
 	int count = 64;
 	char c = 0b00000000;
 	char r_buf[1];
@@ -241,6 +223,7 @@ void decode(int fd) {
 			break;
 		}
 	}
+	puts("");
 	close(fd);
 }
 
